@@ -32,3 +32,56 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+
+##Commands added by me
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write your PowerShell commands here.
+      # Set agent screen resolution to 1920x1080 to avoid sizing issues with Portal  
+      Set-DisplayResolution -Width 1920 -Height 1080 -Force
+      # Wait 10 seconds  
+      Start-Sleep -s 10
+      # Verify Screen Resolution is set to 1920x1080  
+      Get-DisplayResolution
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/PowerAppsTestAutomation.sln'
+    feedsToUse: 'select'
+
+- task: VSBuild@1
+  inputs:
+    solution: '**/PowerAppsTestAutomation.sln'
+
+- task: VSTest@1
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\Microsoft.PowerApps.TestAutomation.Tests\bin\\Debug\Microsoft.PowerApps.TestAutomation.Tests.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    testFiltercriteria: 'TestCategory=PowerAppsTestAutomation'
+    uiTests: true
+    runSettingsFile: '**/Microsoft.PowerApps.TestAutomation.Tests/patestautomation.runsettings'
+    overrideTestrunParameters: '-OnlineUsername "$(OnlineUsername)" -OnlinePassword "$(OnlinePassword)" -BrowserType "$(BrowserTypeChrome)" -OnlineUrl "$(OnlineUrl)" -UsePrivateMode "$(UsePrivateMode)" -TestAutomationURLFilePath "$(TestAutomationURLFilePath)" -DriversPath "$(ChromeWebDriver)"'
+    testRunTitle: 'Run Power Apps Test Automation Tests via $(BrowserTypeChrome)'
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: '**\Microsoft.PowerApps.TestAutomation.Tests\bin\\Debug\Microsoft.PowerApps.TestAutomation.Tests.dll'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    testFiltercriteria: 'TestCategory=PowerAppsTestAutomation'
+    uiTests: true
+    runSettingsFile: '**/Microsoft.PowerApps.TestAutomation.Tests/patestautomation.runsettings'
+    overrideTestrunParameters: '-OnlineUsername "$(OnlineUsername)" -OnlinePassword "$(OnlinePassword)" -BrowserType "$(BrowserTypeFirefox)" -OnlineUrl "$(OnlineUrl)" -UsePrivateMode "$(UsePrivateMode)" -TestAutomationURLFilePath "$(TestAutomationURLFilePath)" -DriversPath "$(GeckoWebDriver)"'
+    testRunTitle: 'Run Power Apps Test Automation Tests via $(BrowserTypeFirefox)'
+
+
+
+
+
+
